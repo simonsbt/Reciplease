@@ -9,16 +9,25 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @StateObject var vm: SearchViewModel = SearchViewModel()
+    @Environment(\.modelContext) private var modelContext
+    
+    @Binding var viewModel: ViewModel2
     @State var presentAlert: Bool = false
+    @State var isShowingRecipesView = false
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                IngredientsContainerView(vm: vm)
+                IngredientsContainerView(viewModel: $viewModel)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(20)
-                NavigationLink(destination: RecipesView(vm: vm)) {
+                Button(action: {
+                    if viewModel.ingredientsIsEmpty {
+                        presentAlert = true
+                    } else {
+                        isShowingRecipesView = true
+                    }
+                }, label: {
                     HStack {
                         Spacer()
                         Text("Search !")
@@ -29,27 +38,35 @@ struct SearchView: View {
                     }
                     .background(.blue)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(20)
-                }
+                    
+                })
+                .padding(20)
             }
             .navigationTitle("Search recipes")
             .navigationBarTitleDisplayMode(.large)
-            .scrollDismissesKeyboard(.interactively)
+            .scrollDismissesKeyboard(.immediately)
             .alert("You have no ingredients !", isPresented: $presentAlert) {
                 Button("OK", role: .cancel) {  }
+            }
+            .navigationDestination(isPresented: $isShowingRecipesView) {
+                RecipesView(viewModel: $viewModel)
+            }
+            .onAppear {
+//                viewModel.hasBeenFetched = false
+//                print("hasBeenFetched: \(viewModel.hasBeenFetched)")
             }
         }
     }
     
-    func getRecipes() {
-        if vm.ingredients.isEmpty {
-            presentAlert.toggle()
-        } else {
-            vm.getRecipes()
-        }
-    }
+//    func getRecipes() {
+//        if viewModel.ingredients.isEmpty {
+//            presentAlert.toggle()
+//        } else {
+//            viewModel.getRecipes()
+//        }
+//    }
 }
 
-#Preview {
-    SearchView()
-}
+//#Preview {
+//    SearchView()
+//}

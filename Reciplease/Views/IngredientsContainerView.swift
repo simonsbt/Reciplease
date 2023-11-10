@@ -10,7 +10,7 @@ import SwiftData
 
 struct IngredientsContainerView: View {
     
-    @StateObject var vm: SearchViewModel
+    @Binding var viewModel: ViewModel2
     
     @State var ingredientToAdd = ""
     
@@ -23,7 +23,7 @@ struct IngredientsContainerView: View {
                 Spacer()
                 Button(action: {
                     withAnimation {
-                        vm.clearIngredients()
+                        viewModel.clearIngredients()
                     }
                     
                 }, label: {
@@ -31,13 +31,13 @@ struct IngredientsContainerView: View {
                 })
             }
             .padding()
-            if $vm.ingredients.isEmpty {
+            if $viewModel.ingredients.isEmpty {
                 Text("You have no ingredient for now.")
                     .foregroundStyle(.secondary)
                     .padding()
             } else {
                 VStack(alignment: .leading) {
-                    ForEach($vm.ingredients, id: \.self) { $ingredient in
+                    ForEach($viewModel.ingredients, id: \.self) { $ingredient in
                         Text("- " + ingredient)
                     }
                 }
@@ -52,7 +52,7 @@ struct IngredientsContainerView: View {
                     .padding(6)
                 Button(action: {
                     withAnimation {
-                        vm.addIngredient(ingredient: ingredientToAdd)
+                        viewModel.addIngredient(ingredient: ingredientToAdd)
                         self.ingredientToAdd = ""
                     }
                 }, label: {
