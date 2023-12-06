@@ -11,7 +11,7 @@ import SwiftData
 struct ContentView: View {
     
     @Environment(\.modelContext) private var modelContext
-    @State private var viewModel: ViewModel2 = ViewModel2()
+    @State private var viewModel: ViewModel
     
     var body: some View {
         TabView {
@@ -30,10 +30,10 @@ struct ContentView: View {
         }
     }
     
-//    init(modelContext: ModelContext) {
-//        let viewModel = ViewModel2(modelContext: modelContext)
-//        _viewModel = State(initialValue: viewModel)
-//    }
+    init(modelContext: ModelContext) {
+        let viewModel = ViewModel(modelContext: modelContext)
+        _viewModel = State(initialValue: viewModel)
+    }
 }
 
 //#Preview {

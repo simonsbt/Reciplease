@@ -11,7 +11,7 @@ struct SearchView: View {
     
     @Environment(\.modelContext) private var modelContext
     
-    @Binding var viewModel: ViewModel2
+    @Binding var viewModel: ViewModel
     @State var presentAlert: Bool = false
     @State var isShowingRecipesView = false
     
@@ -30,7 +30,7 @@ struct SearchView: View {
                 }, label: {
                     HStack {
                         Spacer()
-                        Text("Search !")
+                        Text("Search recipes !")
                             .foregroundStyle(.white)
                             .bold()
                             .padding()
@@ -44,7 +44,7 @@ struct SearchView: View {
             }
             .navigationTitle("Search recipes")
             .navigationBarTitleDisplayMode(.large)
-            .scrollDismissesKeyboard(.immediately)
+            .scrollDismissesKeyboard(.interactively)
             .alert("You have no ingredients !", isPresented: $presentAlert) {
                 Button("OK", role: .cancel) {  }
             }
@@ -52,19 +52,10 @@ struct SearchView: View {
                 RecipesView(viewModel: $viewModel)
             }
             .onAppear {
-//                viewModel.hasBeenFetched = false
-//                print("hasBeenFetched: \(viewModel.hasBeenFetched)")
+                viewModel.hasBeenFetched = false
             }
         }
     }
-    
-//    func getRecipes() {
-//        if viewModel.ingredients.isEmpty {
-//            presentAlert.toggle()
-//        } else {
-//            viewModel.getRecipes()
-//        }
-//    }
 }
 
 //#Preview {

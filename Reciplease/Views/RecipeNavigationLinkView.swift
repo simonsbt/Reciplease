@@ -13,15 +13,26 @@ struct RecipeNavigationLinkView: View {
     
     var body: some View {
         HStack(spacing: 10) {
-            AsyncImage(url: URL(string: recipe.imageUrl)) { image in
-                image
-                    .resizable()
-                    .scaledToFit()
+            AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
+                if let image = phase.image  {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .shadow(radius: 3)
+                } else if phase.error != nil {
+                    VStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 20))
+                    }
                     .frame(width: 80, height: 80)
+                    .background(Color(white: 0.95))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(radius: 3)
-            } placeholder: {
-                ProgressView()
+               } else {
+                    ProgressView()
+                       .frame(width: 80, height: 80)
+                }
             }
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
@@ -33,10 +44,9 @@ struct RecipeNavigationLinkView: View {
                         Text(duration)
                     }
                 }
-                Text(recipe.getIngredientList())
+                Text(recipe.getIngredientFoodStringList())
+                    .foregroundStyle(.secondary)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .truncationMode(.tail)
                     .lineLimit(1)
             }
         }

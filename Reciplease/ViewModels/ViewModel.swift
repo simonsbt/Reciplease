@@ -1,136 +1,127 @@
-////
-////  ViewModel.swift
-////  Reciplease
-////
-////  Created by Simon Sabatier on 07/11/2023.
-////
 //
-//import Foundation
-//import SwiftData
+//  ViewModel2.swift
+//  Reciplease
 //
-//extension ContentView {
-//    
-//    @Observable
-//    class ViewModel {
-//        var modelContext: ModelContext
-//        
-//        var ingredients: [String] = []
-//        var recipes: [ApiResponse.RecipeObject.RecipeModel] = []
-//        //var recipeObjects: [RecipeObject] = []
-//        
-//        var hasError: Bool = false
-//        var isRefreshing: Bool = false
-//        var ingredientsIsEmpty: Bool = true
-//        var hasBeenFetched: Bool = false
-//        
-//        init(modelContext: ModelContext) {
-//            self.modelContext = modelContext
-//        }
-//        
-//        func getRecipes() {
-//            self.isRefreshing = true
-//            self.recipes = []
-//            let type = "&type=public"
-//            let endpoint = "https://api.edamam.com/api/recipes/v2?"
-//            
-//            var ingredientsQuery = ""
-//            for ingredient in ingredients {
-//                ingredientsQuery += (ingredient + ",")
-//            }
-//            print(ingredientsQuery)
-//            
-//            if let url = URL(string: endpoint + type + appId + appKey + "&q=" + ingredientsQuery) {
-//                print(endpoint + type + appId + appKey + "&q=" + ingredientsQuery)
-//                URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-//                    DispatchQueue.main.async {
-//                        guard let data = data, error == nil else {
-//                            self?.hasError = true
-//                            self?.isRefreshing = false
-//                            print("Has Error")
-//                            return
-//                        }
-//                        let decoder = JSONDecoder()
-//                        if let response = try? decoder.decode(Response.self, from: data) {
-//                            print("decoding good")
-//                            print(response.hits.count)
-//                            if !(response.hits.isEmpty) {
-//                                for recipeObject in response.hits {
-//                                    self?.recipes.append(recipeObject.recipe)
-//                                }
-//                            }
-//                            self?.isRefreshing = false
-//                            self?.hasBeenFetched = true
-//                        }
-//                    }
-//                }.resume()
-//            }
-//        }
-//        
-//func addRecipeToFavorite(recipe: Recipe) {
-//    print(recipe.ingredients)
-//    self.modelContext.insert(recipe)
-//    do {
-//        try modelContext.save()
-//    } catch {
-//        print(error)
-//    }
-//}
+//  Created by Simon Sabatier on 10/11/2023.
 //
-//func removeRecipeFromFavorite(recipe: Recipe) {
-//    print(recipe.ingredients)
-//    self.modelContext.delete(recipe)
-//    do {
-//        try modelContext.save()
-//    } catch {
-//        print(error)
+
+import Foundation
+import SwiftData
+
+@Observable
+class ViewModel {
+    
+    var modelContext: ModelContext
+    
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+        fetchFavoriteRecipes()
+    }
+    
+    var favoriteRecipes: [Recipe] = []
+    
+    var ingredients: [String] = []
+    var ingredientsIsEmpty: Bool = true
+    var recipes: [Recipe] = []
+    
+    var selectedSortOrder = "Forward"
+    var selectedSortOption = "Title"
+    let sortOrder: [String] = ["Forward", "Reverse"]
+    let sortOptions: [String] = ["Duration", "Name"]
+    
+    var isRefreshing: Bool = true
+    var hasBeenFetched: Bool = false
+    
+    func fetchFavoriteRecipes() {
+        do {
+            let descriptor = FetchDescriptor<Recipe>()
+            favoriteRecipes = try modelContext.fetch(descriptor)
+        } catch {
+            print("Fetch failed")
+        }
+    }
+    
+    func addRecipeToFavorite(recipe: Recipe) {
+        if let itemIndex = recipes.firstIndex(where: {$0.title == recipe.title}) {
+            recipes[itemIndex].isFavorite = true
+            print("\(recipes[itemIndex].title) favorite set to \(recipes[itemIndex].isFavorite)")
+        } else {
+            print("no corresponding item")
+        }
+        modelContext.insert(recipe)
+        self.fetchFavoriteRecipes()
+    }
+    
+//    func addRecipeToFavorite(recipe: Recipe) {
+//        if let itemIndex = recipes.firstIndex(where: {$0.title == recipe.title}) {
+//            recipes[itemIndex].isFavorite = true
+//            print("\(recipes[itemIndex].title) favorite set to \(recipes[itemIndex].isFavorite)")
+//        } else {
+//            print("no corresponding item")
+//        }
+//        print("There is \(Recipe.totalRecipes(modelContext: modelContext)) fav recipes before addition")
+//        modelContext.insert(recipe)
+//        print("There is \(Recipe.totalRecipes(modelContext: modelContext)) fav recipes after addition")
+//        try? modelContext.save()
+//        print("There is \(Recipe.totalRecipes(modelContext: modelContext)) fav recipes after save")
 //    }
-//}
-//        
-//        func addIngredient(ingredient: String) {
-//            var ingredient = ingredient
-//            let letters = NSCharacterSet.letters
-//            let range = ingredient.rangeOfCharacter(from: letters)
-//            if let _ = range {
-//                if ingredient.last == " " {
-//                    ingredient.removeLast()
-//                }
-//                ingredients.append(ingredient.capitalizeFirstLetter)
-//                self.ingredientsIsEmpty = false
-//            }
-//            print(ingredients)
+    
+    func getRecipes() async {
+        
+        await recipes = ApiResponse.getRecipes(modelContext: modelContext, ingredients: self.ingredients)
+    }
+
+//    func removeRecipeFromFavorite(recipe: Recipe) {
+//        if let itemIndex = recipes.firstIndex(where: {$0.title == recipe.title}) {
+//            recipes[itemIndex].isFavorite = false
+//            print("\(recipes[itemIndex].title) favorite set to \(recipes[itemIndex].isFavorite)")
+//            modelContext.delete(recipes[itemIndex])
+//            print("\(recipes[itemIndex].title) removed")
+//        } else {
+//            print("no corresponding item")
 //        }
 //        
-//        func clearIngredients() {
-//            self.ingredients = []
-//            self.ingredientsIsEmpty = true
-//        }
-//        
-//        private var appId: String {
-//            get {
-//                guard let filePath = Bundle.main.path(forResource: "config", ofType: "plist") else {
-//                    fatalError("Couldn't find file 'config.plist'.")
-//                }
-//                
-//                let plist = NSDictionary(contentsOfFile: filePath)
-//                guard let value = plist?.object(forKey: "app_id") as? String else {
-//                    fatalError("Couldn't find key 'app_id' in 'config.plist'.")
-//                }
-//                return value
-//            }
-//        }
-//        
-//        private var appKey: String {
-//            get {
-//                guard let filePath = Bundle.main.path(forResource: "config", ofType: "plist") else {
-//                    fatalError("Couldn't find file 'config.plist'.")
-//                }
-//                
-//                let plist = NSDictionary(contentsOfFile: filePath)
-//                guard let value = plist?.object(forKey: "app_key") as? String else {
-//                    fatalError("Couldn't find key 'app_key' in 'config.plist'.")
-//                }
-//                return value
-//            }
-//        }
+//        self.fetchFavoriteRecipes()
 //    }
-//}
+    
+    func removeRecipeFromFavorite(recipe: Recipe) {
+        if let itemIndex = recipes.firstIndex(where: {$0.title == recipe.title}) {
+            recipes[itemIndex].isFavorite = false
+            print("\(recipes[itemIndex].title) favorite set to \(recipes[itemIndex].isFavorite)")
+        } else {
+            print("no corresponding item")
+        }
+        let fetchDescriptor = FetchDescriptor<Recipe>()
+        let favRecipes = try! modelContext.fetch(fetchDescriptor)
+        var recipeToDelete: Recipe
+        if let index = favRecipes.firstIndex(where: {$0.title == recipe.title}) {
+            print("recipe \(recipe.title) found in favRecipes at index \(index)")
+            recipeToDelete = favRecipes[index]
+            print("There is \(Recipe.totalRecipes(modelContext: modelContext)) fav recipes before deletion")
+            modelContext.delete(recipeToDelete)
+            print("There is \(Recipe.totalRecipes(modelContext: modelContext)) fav recipes after deletion")
+            try? modelContext.save()
+            print("There is \(Recipe.totalRecipes(modelContext: modelContext)) fav recipes after save")
+        }
+        self.fetchFavoriteRecipes()
+    }
+            
+    func addIngredient(ingredient: String) {
+        var ingredient = ingredient
+        let letters = NSCharacterSet.letters
+        let range = ingredient.rangeOfCharacter(from: letters)
+        if let _ = range {
+            if ingredient.last == " " {
+                ingredient.removeLast()
+            }
+            ingredients.append(ingredient.capitalizeFirstLetter)
+            self.ingredientsIsEmpty = false
+        }
+        print(ingredients)
+    }
+
+    func clearIngredients() {
+        self.ingredients = []
+        self.ingredientsIsEmpty = true
+    }
+}

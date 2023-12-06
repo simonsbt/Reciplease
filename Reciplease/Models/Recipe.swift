@@ -13,16 +13,20 @@ class Recipe {
    
     var title: String
     var imageUrl: String
-    var ingredients: [Ingredient]
+    var ingredientFoodList: [String]
+    var ingredientTextList: [String]
     var url: String
     var totalTime: Double
+    var isFavorite: Bool
     
-    init(title: String, imageUrl: String, ingredients: [Ingredient], url: String, totalTime: Double) {
+    init(title: String, imageUrl: String, ingredientFoodList: [String], ingredientTextList: [String], url: String, totalTime: Double) {
         self.title = title
         self.imageUrl = imageUrl
-        self.ingredients = ingredients
+        self.ingredientFoodList = ingredientFoodList
+        self.ingredientTextList = ingredientTextList
         self.url = url
         self.totalTime = totalTime
+        self.isFavorite = false
     }
 }
 
@@ -33,7 +37,8 @@ extension Recipe {
         self.init(
             title: recipe.label,
             imageUrl: recipe.image,
-            ingredients: recipe.ingredients,
+            ingredientFoodList: recipe.getIngredientFoodList(),
+            ingredientTextList: recipe.getIngredientTextList(),
             url: recipe.url,
             totalTime: recipe.totalTime
         )
@@ -47,6 +52,8 @@ extension Recipe {
                 let minutes = timeMeasure.value.truncatingRemainder(dividingBy: 60)
                 if minutes == 0 {
                    return String(format: "%.f%@", hours.value, "h")
+                } else if minutes < 10 {
+                    return String(format: "%.f%@0%.f", hours.value, "h", minutes)
                 }
                 return String(format: "%.f%@%.f", hours.value, "h", minutes)
             }
@@ -55,12 +62,17 @@ extension Recipe {
         return nil
     }
     
-    func getIngredientList() -> String {
-        var ingredientList = ""
-        for ingredient in ingredients {
-            ingredientList += (ingredient.food.capitalizeFirstLetter + ", ")
+    /// Reports the total number of recipes.
+    static func totalRecipes(modelContext: ModelContext) -> Int {
+        (try? modelContext.fetchCount(FetchDescriptor<Recipe>())) ?? 0
+    }
+    
+    func getIngredientFoodStringList() -> String {
+        var list = ""
+        for ingredient in ingredientFoodList {
+            list += (ingredient.capitalizeFirstLetter + ", ")
         }
-        ingredientList.removeLast(2)
-        return ingredientList
+        list.removeLast(2)
+        return list
     }
 }

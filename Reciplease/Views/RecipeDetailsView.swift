@@ -11,37 +11,58 @@ import SwiftData
 
 struct RecipeDetailsView: View {
     
-    @Environment(\.modelContext) private var modelContext
-    @Binding var viewModel: ViewModel2
-    @State var recipe: Recipe
-    @State var isFavorite: Bool = false
-    
-    @Query private var favoriteRecipes: [Recipe]
+    @Binding var viewModel: ViewModel
+//    @Binding var recipe: Recipe
+    let index: Int
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
-                    AsyncImage(url: URL(string: recipe.imageUrl)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                    } placeholder: {
-                        ProgressView()
-                            .frame(width: 300, height: 300, alignment: .center)
+                    ZStack(alignment: .topTrailing) {
+                        AsyncImage(url: URL(string: viewModel.recipes[index].imageUrl)) { phase in
+                            if let image = phase.image  {
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            } else if phase.error != nil {
+                                VStack(spacing: 10) {
+                                    Image(systemName: "exclamationmark.triangle")
+                                        .font(.system(size: 50))
+                                    Text("Unable to load the image...")
+                                }
+                                .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
+                                .background(Color(white: 0.95))
+                            } else {
+                                ProgressView()
+                                    .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
+                            }
+                        }
+                        if let duration = viewModel.recipes[index].getRecipeDuration() {
+                            HStack {
+                                Text("Duration: \(duration)")
+                                    .foregroundStyle(.black)
+                                    .bold()
+                                    .padding(.init(top: 6, leading: 10, bottom: 6, trailing: 10))
+                            }
+                            .background(Color(white: 0.95))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding()
+                        }
                     }
+                    .frame(width: UIScreen.screenWidth)
                     VStack(alignment: .leading) {
                         Text("Ingredients")
                             .font(.title2)
                             .bold()
-                        VStack(alignment: .leading, spacing: 10) {
-                            ForEach(recipe.ingredients, id: \.text) { ingredient in
-                                Text("- " + ingredient.text)
+                        VStack(alignment: .leading) {
+                            ForEach(viewModel.recipes[index].ingredientTextList, id: \.self) { ingredientText in
+                                Text("- \(ingredientText)")
                             }
                         }
                         .padding()
                         Button(action: {
-                            let vc = SFSafariViewController(url: URL(string: recipe.url)!)
+                            let vc = SFSafariViewController(url: URL(string: (viewModel.recipes[index].url))!)
                             UIApplication.shared.firstKeyWindow?.rootViewController?.present(vc, animated: true)
                         }, label: {
                             HStack {
@@ -54,40 +75,138 @@ struct RecipeDetailsView: View {
                             }
                             .background(.blue)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding(14)
                         })
+                        .padding(14)
                     }
                     .padding(6)
                 }
             }
-            .navigationTitle($recipe.title)
+            .navigationTitle(viewModel.recipes[index].title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        if isFavorite {
-                            viewModel.removeRecipeFromFavorite(modelContext: modelContext, recipe: recipe)
+                        if viewModel.recipes[index].isFavorite {
+                            print("fav button tapped; delete \(viewModel.recipes[index].title)")
+                            viewModel.recipes[index].isFavorite = false
+                            viewModel.removeRecipeFromFavorite(recipe: viewModel.recipes[index])
                         } else {
-                            viewModel.addRecipeToFavorite(modelContext: modelContext, recipe: recipe)
+                            print("fav button tapped; add \(viewModel.recipes[index].title)")
+                            viewModel.recipes[index].isFavorite = true
+                            viewModel.addRecipeToFavorite(recipe: viewModel.recipes[index])
                         }
-                        isFavorite.toggle()
                     } label: {
-                        Image(systemName: isFavorite ? "star.fill" : "star")
+                        Image(systemName: viewModel.recipes[index].isFavorite ? "star.fill" : "star")
                             .foregroundStyle(.yellow)
                     }
                 }
             })
             .onAppear {
-                let favRecipe = favoriteRecipes.filter( { $0.title == recipe.title } )
-                if favRecipe.isEmpty {
-                    isFavorite = false
-                } else {
-                    isFavorite = true
-                }
+                print(viewModel.recipes[index].isFavorite)
             }
         }
     }
 }
+
+//struct RecipeDetailsView: View {
+//    
+//    @Binding var viewModel: ViewModel
+//    @Binding var recipe: Recipe
+//    let index: Int
+//    
+//    var body: some View {
+//        NavigationStack {
+//            ScrollView {
+//                VStack {
+//                    ZStack(alignment: .topTrailing) {
+//                        AsyncImage(url: URL(string: viewModel.recipes[index].imageUrl)) { phase in
+//                            if let image = phase.image  {
+//                                image
+//                                    .resizable()
+//                                    .scaledToFit()
+//                            } else if phase.error != nil {
+//                                VStack(spacing: 10) {
+//                                    Image(systemName: "exclamationmark.triangle")
+//                                        .font(.system(size: 50))
+//                                    Text("Unable to load the image...")
+//                                }
+//                                .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
+//                                .background(Color(white: 0.95))
+//                            } else {
+//                                ProgressView()
+//                                    .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
+//                            }
+//                        }
+//                        if let duration = viewModel.recipes[index].getRecipeDuration() {
+//                            HStack {
+//                                Text("Duration: \(duration)")
+//                                    .foregroundStyle(.black)
+//                                    .bold()
+//                                    .padding(.init(top: 6, leading: 10, bottom: 6, trailing: 10))
+//                            }
+//                            .background(Color(white: 0.95))
+//                            .clipShape(RoundedRectangle(cornerRadius: 10))
+//                            .padding()
+//                        }
+//                    }
+//                    .frame(width: UIScreen.screenWidth)
+//                    VStack(alignment: .leading) {
+//                        Text("Ingredients")
+//                            .font(.title2)
+//                            .bold()
+//                        VStack(alignment: .leading) {
+//                            ForEach(viewModel.recipes[index].ingredientTextList, id: \.self) { ingredientText in
+//                                Text("- \(ingredientText)")
+//                            }
+//                        }
+//                        .padding()
+//                        Button(action: {
+//                            let vc = SFSafariViewController(url: URL(string: (viewModel.recipes[index].url))!)
+//                            UIApplication.shared.firstKeyWindow?.rootViewController?.present(vc, animated: true)
+//                        }, label: {
+//                            HStack {
+//                                Spacer()
+//                                Text("Get directions")
+//                                    .foregroundStyle(.white)
+//                                    .bold()
+//                                    .padding()
+//                                Spacer()
+//                            }
+//                            .background(.blue)
+//                            .clipShape(RoundedRectangle(cornerRadius: 10))
+//                        })
+//                        .padding(14)
+//                    }
+//                    .padding(6)
+//                }
+//            }
+//            .navigationTitle(viewModel.recipes[index].title)
+//            .navigationBarTitleDisplayMode(.inline)
+//            .toolbar(content: {
+//                ToolbarItem(placement: .topBarTrailing) {
+//                    Button {
+//                        if viewModel.recipes[index].isFavorite {
+//                            print("fav button tapped; delete \(viewModel.recipes[index].title)")
+//                            viewModel.recipes[index].isFavorite = false
+//                            viewModel.removeRecipeFromFavorite(recipe: viewModel.recipes[index])
+//                        } else {
+//                            print("fav button tapped; add \(viewModel.recipes[index].title)")
+//                            viewModel.recipes[index].isFavorite = true
+//                            viewModel.addRecipeToFavorite(recipe: viewModel.recipes[index])
+//                        }
+//                    } label: {
+//                        Image(systemName: viewModel.recipes[index].isFavorite ? "star.fill" : "star")
+//                            .foregroundStyle(.yellow)
+//                    }
+//                }
+//            })
+//            .onAppear {
+//                print(viewModel.recipes[index].isFavorite)
+//            }
+//        }
+//    }
+//}
+
 
 //#Preview {
 //    RecipeDetailsView()

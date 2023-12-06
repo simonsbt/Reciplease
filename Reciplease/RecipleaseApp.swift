@@ -14,7 +14,7 @@ struct RecipleaseApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(modelContext: container.mainContext)
                 .modelContainer(container)
         }
     }

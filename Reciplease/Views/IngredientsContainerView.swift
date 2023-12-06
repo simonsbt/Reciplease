@@ -10,7 +10,7 @@ import SwiftData
 
 struct IngredientsContainerView: View {
     
-    @Binding var viewModel: ViewModel2
+    @Binding var viewModel: ViewModel
     
     @State var ingredientToAdd = ""
     
