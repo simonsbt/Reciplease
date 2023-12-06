@@ -9,18 +9,19 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var viewModel: ViewModel
+    
     var body: some View {
         TabView {
-            SearchView()
+            SearchView(viewModel: $viewModel)
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                         .renderingMode(.template)
                     Text("Search")
                 }
-            FavoritesView()
+            FavoriteRecipesView(viewModel: $viewModel)
                 .tabItem {
                     Image(systemName: "star")
                         .renderingMode(.template)
@@ -28,27 +29,17 @@ struct ContentView: View {
                 }
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
+    
+    init(modelContext: ModelContext) {
+        let viewModel = ViewModel(modelContext: modelContext)
+        _viewModel = State(initialValue: viewModel)
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
-}
+//#Preview {
+//    ContentView()
+//        .modelContainer(for: Item.self, inMemory: true)
+//}
 
 
 //        NavigationSplitView {

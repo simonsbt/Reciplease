@@ -9,19 +9,28 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @StateObject var vm: SearchViewModel = SearchViewModel()
+    @Environment(\.modelContext) private var modelContext
+    
+    @Binding var viewModel: ViewModel
     @State var presentAlert: Bool = false
+    @State var isShowingRecipesView = false
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                IngredientsContainerView(vm: vm)
+                IngredientsContainerView(viewModel: $viewModel)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(20)
-                NavigationLink(destination: RecipesView(vm: vm)) {
+                Button(action: {
+                    if viewModel.ingredientsIsEmpty {
+                        presentAlert = true
+                    } else {
+                        isShowingRecipesView = true
+                    }
+                }, label: {
                     HStack {
                         Spacer()
-                        Text("Search !")
+                        Text("Search recipes !")
                             .foregroundStyle(.white)
                             .bold()
                             .padding()
@@ -29,8 +38,9 @@ struct SearchView: View {
                     }
                     .background(.blue)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(20)
-                }
+                    
+                })
+                .padding(20)
             }
             .navigationTitle("Search recipes")
             .navigationBarTitleDisplayMode(.large)
@@ -38,18 +48,16 @@ struct SearchView: View {
             .alert("You have no ingredients !", isPresented: $presentAlert) {
                 Button("OK", role: .cancel) {  }
             }
-        }
-    }
-    
-    func getRecipes() {
-        if vm.ingredients.isEmpty {
-            presentAlert.toggle()
-        } else {
-            vm.getRecipes()
+            .navigationDestination(isPresented: $isShowingRecipesView) {
+                RecipesView(viewModel: $viewModel)
+            }
+            .onAppear {
+                viewModel.hasBeenFetched = false
+            }
         }
     }
 }
 
-#Preview {
-    SearchView()
-}
+//#Preview {
+//    SearchView()
+//}
