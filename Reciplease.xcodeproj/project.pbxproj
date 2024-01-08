@@ -53,11 +53,11 @@
 		0805C32D2AFA84D000F46298 /* RecipesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesView.swift; sourceTree = "<group>"; };
 		0805C32F2AFA893700F46298 /* config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = config.plist; sourceTree = "<group>"; };
 		08C0205B2AFBCD6700523766 /* FavoriteRecipesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRecipesView.swift; sourceTree = "<group>"; };
-		08C0205D2AFC2DE200523766 /* Reciplease.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Reciplease.app; path = "/Users/simon/Documents/OpenClassrooms/Projets/P10/Reciplease/build/Debug-iphoneos/Reciplease.app"; sourceTree = "<absolute>"; };
 		08F0E0A32AFE460D00AD113C /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
 		08F0E0A52AFE4E0A00AD113C /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
-		F43D592A2B4BFCBD00734DED /* RecipleaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = RecipleaseTests.xctest; path = "/Users/simon/Documents/OpenClassrooms/Projets/P10/Reciplease/build/Debug-iphoneos/RecipleaseTests.xctest"; sourceTree = "<absolute>"; };
 		F43D592C2B4BFCBD00734DED /* RecipleaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipleaseTests.swift; sourceTree = "<group>"; };
+		F43D59382B4C1D9300734DED /* Reciplease.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reciplease.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F43D593A2B4C1E5B00734DED /* RecipleaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = RecipleaseTests.xctest; path = "/Users/simon/Documents/OpenClassrooms/Projets/P10/Reciplease/build/Debug-iphoneos/RecipleaseTests.xctest"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +85,7 @@
 			children = (
 				0805C2E92AFA404000F46298 /* Reciplease */,
 				F43D592B2B4BFCBD00734DED /* RecipleaseTests */,
+				F43D59382B4C1D9300734DED /* Reciplease.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -188,7 +189,7 @@
 				F4C757CA2B3485D800E229B9 /* Algorithms */,
 			);
 			productName = Reciplease;
-			productReference = 08C0205D2AFC2DE200523766 /* Reciplease.app */;
+			productReference = F43D59382B4C1D9300734DED /* Reciplease.app */;
 			productType = "com.apple.product-type.application";
 		};
 		F43D59292B4BFCBD00734DED /* RecipleaseTests */ = {
@@ -206,7 +207,7 @@
 			);
 			name = RecipleaseTests;
 			productName = RecipleaseTests;
-			productReference = F43D592A2B4BFCBD00734DED /* RecipleaseTests.xctest */;
+			productReference = F43D593A2B4C1E5B00734DED /* RecipleaseTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
