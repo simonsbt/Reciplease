@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import Alamofire
 @testable import Reciplease
 import SwiftData
 

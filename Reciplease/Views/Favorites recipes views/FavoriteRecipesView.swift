@@ -31,7 +31,6 @@ struct FavoriteRecipesView: View {
             }
         }
         .onAppear {
-            print("fetching fav recipes")
             viewModel.fetchFavoriteRecipes()
         }
     }
