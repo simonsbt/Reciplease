@@ -88,24 +88,18 @@ class ViewModel {
     
     // Remove a recipe from SwiftData
     func removeRecipeFromFavorite(recipe: Recipe) {
-        do {
-            if let itemIndex = recipes.firstIndex(where: {$0.title == recipe.title}) {
-                recipes[itemIndex].isFavorite = false
-            } else {
-                print("no corresponding item")
-            }
-            let fetchDescriptor = FetchDescriptor<Recipe>()
-            let favRecipes = try modelContext.fetch(fetchDescriptor) // Get favorite recipes
-            
-            // get the index of the recipe that needs to be deleted
-            if let index = favRecipes.firstIndex(where: {$0.title == recipe.title}) {
-                modelContext.delete(favRecipes[index])
-            }
-            
-            self.fetchFavoriteRecipes()
-        } catch {
-            print("Error while fetching favorite recipes")
+        if let itemIndex = recipes.firstIndex(where: {$0.title == recipe.title}) {
+            recipes[itemIndex].isFavorite = false
+        } else {
+            print("no corresponding item")
         }
+        
+        // get the index of the recipe that needs to be deleted
+        if let index = favoriteRecipes.firstIndex(where: {$0.title == recipe.title}) {
+            modelContext.delete(favoriteRecipes[index])
+        }
+        
+        self.fetchFavoriteRecipes()
     }
     
     // Add an ingredient to the ingredient list

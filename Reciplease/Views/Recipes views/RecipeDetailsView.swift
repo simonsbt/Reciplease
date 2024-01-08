@@ -55,7 +55,7 @@ struct RecipeDetailsView: View {
                             .font(.title2)
                             .bold()
                         VStack(alignment: .leading) {
-                            ForEach(viewModel.recipes[index].ingredientTextList, id: \.self) { ingredientText in
+                            ForEach(Array(viewModel.recipes[index].ingredientTextList.uniqued()), id: \.self) { ingredientText in
                                 Text("- \(ingredientText)")
                             }
                         }

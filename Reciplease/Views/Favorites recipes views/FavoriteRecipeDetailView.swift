@@ -90,10 +90,8 @@ struct FavoriteRecipeDetailsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if recipe.isFavorite {
-                            print("fav button tapped; delete \(recipe.title)")
                             showingDeleteAlert = true
                         } else {
-                            print("fav button tapped; add \(recipe.title)")
                             recipe.isFavorite = true
                             viewModel.addRecipeToFavorite(recipe: recipe)
                         }
