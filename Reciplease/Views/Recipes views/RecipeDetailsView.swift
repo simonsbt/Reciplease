@@ -99,9 +99,6 @@ struct RecipeDetailsView: View {
                     .accessibilityLabel(viewModel.recipes[index].isFavorite ? "Remove this recipe from favorites" : "Add this recipe to favorites")
                 }
             })
-            .onAppear {
-                print(viewModel.recipes[index].isFavorite)
-            }
         }
     }
 }

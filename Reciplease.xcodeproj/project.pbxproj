@@ -95,7 +95,7 @@
 			children = (
 				0805C2EA2AFA404000F46298 /* RecipleaseApp.swift */,
 				0805C31B2AFA45E800F46298 /* Models */,
-				0805C3262AFA521D00F46298 /* ViewModels */,
+				0805C3262AFA521D00F46298 /* ViewModel */,
 				0805C31A2AFA45DC00F46298 /* Views */,
 				0805C2F02AFA404100F46298 /* Assets.xcassets */,
 				0805C2F22AFA404100F46298 /* Preview Content */,
@@ -134,12 +134,12 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		0805C3262AFA521D00F46298 /* ViewModels */ = {
+		0805C3262AFA521D00F46298 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
 				08F0E0A52AFE4E0A00AD113C /* ViewModel.swift */,
 			);
-			path = ViewModels;
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F43D59172B4BF6DD00734DED /* Favorites recipes views */ = {

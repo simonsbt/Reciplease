@@ -22,6 +22,7 @@ class ViewModel {
     
     var ingredients: [String] = []
     var ingredientsIsEmpty: Bool = true
+    
     var recipes: [Recipe] = []
     
     var isRefreshing: Bool = true
@@ -31,7 +32,7 @@ class ViewModel {
     // Fetch favorite recipes from the modelContext
     func fetchFavoriteRecipes() {
         do {
-            let descriptor = FetchDescriptor<Recipe>()
+            let descriptor = FetchDescriptor<Recipe>() // FetchDescriptor is used to provide criteria when fetching data
             favoriteRecipes = try modelContext.fetch(descriptor)
         } catch {
             print("Fetch failed")
@@ -44,20 +45,28 @@ class ViewModel {
             self.isRefreshing = true
             switch result {
             case .success(let response):
-                var recipes: [Recipe] = []
-                for recipe in response.hits {
-                    recipes.append(try! Recipe(from: recipe.recipe))
-                }
-                let fetchDescriptor = FetchDescriptor<Recipe>()
-                let favRecipes = try! self.modelContext.fetch(fetchDescriptor)
-                for recipe in recipes {
-                    if let index = favRecipes.firstIndex(where: {$0.title == recipe.title}) {
-                        // If the recipe is found in the favRecipes, copy the isFavorite value
-                        recipe.isFavorite = favRecipes[index].isFavorite
+                do {
+                    var recipes: [Recipe] = []
+                    for recipe in response.hits {
+                        recipes.append(try Recipe(from: recipe.recipe))
                     }
+                    
+                    let fetchDescriptor = FetchDescriptor<Recipe>()
+                    let favRecipes = try self.modelContext.fetch(fetchDescriptor)
+                    
+                    for recipe in recipes {
+                        if let index = favRecipes.firstIndex(where: {$0.title == recipe.title}) {
+                            // If the recipe is found in the favRecipes, copy the isFavorite value
+                            recipe.isFavorite = favRecipes[index].isFavorite
+                        }
+                    }
+                    self.recipes = recipes
+                    self.isRefreshing = false
+                } catch {
+                    print("Error while fetching the data")
+                    self.hasError = true
+                    self.isRefreshing = false
                 }
-                self.recipes = recipes
-                self.isRefreshing = false
             case .failure(let error):
                 print(error)
                 self.hasError = true
