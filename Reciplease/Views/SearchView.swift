@@ -45,11 +45,13 @@ struct SearchView: View {
             .navigationTitle("Search recipes")
             .navigationBarTitleDisplayMode(.large)
             .scrollDismissesKeyboard(.interactively)
-            .alert("You have no ingredients !", isPresented: $presentAlert) {
+            .alert("You have no ingredients !", isPresented: $presentAlert, actions: {
                 Button("OK", role: .cancel) {  }
-            }
+            }, message: {
+                Text("Please add some ingredients before searching for recipes.")
+            })
             .navigationDestination(isPresented: $isShowingRecipesView) {
-                RecipesView(viewModel: $viewModel)
+                RecipesView(viewModel: $viewModel) // Presents RecipesView() when needed
             }
             .onAppear {
                 viewModel.hasBeenFetched = false

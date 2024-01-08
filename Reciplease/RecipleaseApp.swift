@@ -10,7 +10,7 @@ import SwiftData
 
 @main
 struct RecipleaseApp: App {
-    let container: ModelContainer
+    let container: ModelContainer // ModelContainer manages the database for SwiftData objects
 
     var body: some Scene {
         WindowGroup {

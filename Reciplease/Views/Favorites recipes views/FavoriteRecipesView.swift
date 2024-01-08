@@ -29,20 +29,6 @@ struct FavoriteRecipesView: View {
                 .navigationTitle("Favorite recipes")
                 .navigationBarTitleDisplayMode(.large)
             }
-//            if recipes.isEmpty {
-//                ContentUnavailableView("You have no favorite recipe !", systemImage: "star.fill", description: Text("Add some favorite recipes with this few steps: go in the \"Search\" tab, enter your ingredients, select a recipe that you like and tap the star at the top-left of the screen !"))
-//            } else {
-//                List(recipes, id: \.url) { recipe in
-//                    NavigationLink {
-//                        FavoriteRecipeDetailsView(viewModel: $viewModel, recipe: recipe)
-//                    } label: {
-//                        RecipeNavigationLinkView(recipe: recipe)
-//                    }
-//                }
-//                .listStyle(.grouped)
-//                .navigationTitle("Favorite recipes")
-//                .navigationBarTitleDisplayMode(.large)
-//            }
         }
         .onAppear {
             print("fetching fav recipes")

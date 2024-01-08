@@ -48,6 +48,7 @@ struct RecipeNavigationLinkView: View {
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
                     .lineLimit(1)
+                    .accessibilityHint("Ingredients list")
             }
         }
     }

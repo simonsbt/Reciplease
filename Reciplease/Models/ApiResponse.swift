@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import Alamofire
 
 struct ApiResponse: Decodable {
     let count: Int
@@ -23,22 +24,7 @@ struct ApiResponse: Decodable {
             let url: String
             let totalTime: Double
             
-            func getRecipeDuration() -> String? {
-                if totalTime != 0 {
-                    let timeMeasure = Measurement(value: totalTime, unit: UnitDuration.minutes)
-                    let hours = timeMeasure.converted(to: .hours)
-                    if hours.value >= 1 {
-                        let minutes = timeMeasure.value.truncatingRemainder(dividingBy: 60)
-                        if minutes == 0 {
-                           return String(format: "%.f%@", hours.value, "h")
-                        }
-                        return String(format: "%.f%@%.f", hours.value, "h", minutes)
-                    }
-                    return String(format: "%.f%@", timeMeasure.value, "min")
-                }
-                return nil
-            }
-            
+            /// Return an array with the ingredients details
             func getIngredientTextList() -> [String] {
                 var list: [String] = []
                 for ingredient in ingredients {
@@ -47,6 +33,7 @@ struct ApiResponse: Decodable {
                 return list
             }
             
+            /// Return an array with the ingredients list
             func getIngredientFoodList() -> [String] {
                 var list: [String] = []
                 for ingredient in ingredients {
@@ -60,7 +47,8 @@ struct ApiResponse: Decodable {
 
 extension ApiResponse {
     
-    static private func fetchRecipes(ingredients: [String]) async throws -> ApiResponse {
+    /// Fetch recipes with a callback sending an ApiResponse or an Error
+    static private func fetchRecipes(ingredients: [String], completion: @escaping (Result<ApiResponse, Error>) -> Void) {
         let type = "&type=public"
         let endpoint = "https://api.edamam.com/api/recipes/v2?"
         let appId = getAppAuth(auth: .app_id)
@@ -70,55 +58,29 @@ extension ApiResponse {
         for ingredient in ingredients {
             ingredientsQuery += (ingredient + ",")
         }
-        print(ingredientsQuery)
-        guard let url = URL(string: endpoint + type + appId + appKey + "&q=" + ingredientsQuery) else {
-            throw FetchError.incorrectUrl
-        }
-
-        let session = URLSession.shared
-        guard let (data, response) = try? await session.data(from: url),
-              let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw FetchError.missingData
-        }
-
-        do {
-            // Decode the JSON into a data model.
-            let jsonDecoder = JSONDecoder()
-            return try jsonDecoder.decode(ApiResponse.self, from: data)
-        } catch {
-            throw FetchError.wrongDataFormat(error: error)
-        }
-    }
-    
-    static func getRecipes(modelContext: ModelContext, ingredients: [String]) async -> [Recipe] {
-        do {
-            var recipes: [Recipe] = []
-            let response = try await fetchRecipes(ingredients: ingredients)
-            for recipe in response.hits {
-                recipes.append(try Recipe(from: recipe.recipe))
-            }
-            let fetchDescriptor = FetchDescriptor<Recipe>()
-            let favRecipes = try modelContext.fetch(fetchDescriptor)
-            for favRecipe in favRecipes {
-                print(favRecipe.title)
-            }
-            for recipe in recipes {
-                if let index = favRecipes.firstIndex(where: {$0.title == recipe.title}) {
-                    print("recipe \(recipe.title) found in favRecipes at index \(index)")
-                    recipe.isFavorite = favRecipes[index].isFavorite
-                } else {
-                    print("recipe not found")
+        let url = endpoint + type + appId + appKey + "&q=" + ingredientsQuery
+        
+        /// Alamofire call
+        AF.request(url).response { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: data!)
+                    completion(.success(apiResponse))
+                } catch {
+                    completion(.failure(FetchError.wrongDataFormat(error: error)))
                 }
+            case .failure(_):
+                completion(.failure(FetchError.missingData))
             }
-            return recipes
-        } catch {
-            print(error)
-            return []
         }
     }
     
+    static func getRecipes (modelContext: ModelContext, ingredients: [String], completion: @escaping (Result<ApiResponse, Error>) -> Void) {
+        fetchRecipes(ingredients: ingredients, completion: completion)
+    }
+    
+    /// Return the auth keys for the API call
     static func getAppAuth(auth: AppAuth) -> String {
         guard let filePath = Bundle.main.path(forResource: "config", ofType: "plist") else {
             fatalError("Couldn't find file 'config.plist'.")

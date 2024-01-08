@@ -10,7 +10,7 @@ import SwiftData
 
 struct ContentView: View {
     
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var modelContext // modelContext tracks all the objects created, modified and deleted in the memory
     @State private var viewModel: ViewModel
     
     var body: some View {
@@ -40,29 +40,3 @@ struct ContentView: View {
 //    ContentView()
 //        .modelContainer(for: Item.self, inMemory: true)
 //}
-
-
-//        NavigationSplitView {
-//            List {
-//                ForEach(items) { item in
-//                    NavigationLink {
-//                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-//                    } label: {
-//                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-//                    }
-//                }
-//                .onDelete(perform: deleteItems)
-//            }
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    EditButton()
-//                }
-//                ToolbarItem {
-//                    Button(action: addItem) {
-//                        Label("Add Item", systemImage: "plus")
-//                    }
-//                }
-//            }
-//        } detail: {
-//            Text("Select an item")
-//        }

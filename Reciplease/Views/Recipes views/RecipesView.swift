@@ -15,10 +15,11 @@ struct RecipesView: View {
     
     var body: some View {
         NavigationStack {
-            List($viewModel.recipes, id: \.url) { $recipe in
+            List(viewModel.recipes, id: \.url) { recipe in
+                // Get the index in viewModel of the actual recipe
                 if let index = viewModel.recipes.firstIndex(where: { $0.title == recipe.title } ) {
                     NavigationLink {
-                        RecipeDetailsView(viewModel: $viewModel, /*recipe: $recipe,*/ index: index)
+                        RecipeDetailsView(viewModel: $viewModel, index: index)
                     } label: {
                         RecipeNavigationLinkView(recipe: recipe)
                     }
@@ -47,7 +48,7 @@ struct RecipesView: View {
         .overlay {
             if viewModel.isRefreshing {
                 ProgressView()
-            } else if (viewModel.recipes.isEmpty && viewModel.isRefreshing == false) {
+            } else if (viewModel.recipes.isEmpty) {
                 ContentUnavailableView.search
             }
         }
@@ -57,7 +58,6 @@ struct RecipesView: View {
         viewModel.isRefreshing = true
         viewModel.recipes = []
         await viewModel.getRecipes()
-        viewModel.isRefreshing = false
     }
 }
 

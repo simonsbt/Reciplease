@@ -1,28 +1,25 @@
 //
-//  FavoriteRecipeDetailView.swift
+//  RecipeDetailsView.swift
 //  Reciplease
 //
-//  Created by Simon Sabatier on 21/11/2023.
+//  Created by Simon Sabatier on 07/11/2023.
 //
 
 import SwiftUI
 import SafariServices
 import SwiftData
 
-struct FavoriteRecipeDetailsView: View {
+struct RecipeDetailsView: View {
     
     @Binding var viewModel: ViewModel
-    @Binding var recipe: Recipe
-    
-    @Environment(\.dismiss) var dismiss
-    @State private var showingDeleteAlert = false
+    let index: Int // Used to get the recipes from the viewModel
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
                     ZStack(alignment: .topTrailing) {
-                        AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
+                        AsyncImage(url: URL(string: viewModel.recipes[index].imageUrl)) { phase in
                             if let image = phase.image  {
                                 image
                                     .resizable()
@@ -35,12 +32,12 @@ struct FavoriteRecipeDetailsView: View {
                                 }
                                 .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
                                 .background(Color(white: 0.95))
-                           } else {
+                            } else {
                                 ProgressView()
-                                   .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
+                                    .frame(width: UIScreen.screenWidth, height: UIScreen.screenWidth)
                             }
                         }
-                        if let duration = recipe.getRecipeDuration() {
+                        if let duration = viewModel.recipes[index].getRecipeDuration() {
                             HStack {
                                 Text("Duration: \(duration)")
                                     .foregroundStyle(.black)
@@ -58,13 +55,13 @@ struct FavoriteRecipeDetailsView: View {
                             .font(.title2)
                             .bold()
                         VStack(alignment: .leading) {
-                            ForEach(recipe.ingredientTextList, id: \.self) { ingredientText in
+                            ForEach(viewModel.recipes[index].ingredientTextList, id: \.self) { ingredientText in
                                 Text("- \(ingredientText)")
                             }
                         }
                         .padding()
                         Button(action: {
-                            let vc = SFSafariViewController(url: URL(string: (recipe.url))!)
+                            let vc = SFSafariViewController(url: URL(string: (viewModel.recipes[index].url))!)
                             UIApplication.shared.firstKeyWindow?.rootViewController?.present(vc, animated: true)
                         }, label: {
                             HStack {
@@ -83,47 +80,32 @@ struct FavoriteRecipeDetailsView: View {
                     .padding(6)
                 }
             }
-            .navigationTitle(recipe.title)
+            .navigationTitle(viewModel.recipes[index].title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        if recipe.isFavorite {
-                            print("fav button tapped; delete \(recipe.title)")
-                            showingDeleteAlert = true
-                            // Present alert for confirmation
-                            // then delete the recipe and navigate back
-                            
+                        if viewModel.recipes[index].isFavorite {
+                            viewModel.recipes[index].isFavorite = false
+                            viewModel.removeRecipeFromFavorite(recipe: viewModel.recipes[index])
                         } else {
-                            print("fav button tapped; add \(recipe.title)")
-                            recipe.isFavorite = true
-                            viewModel.addRecipeToFavorite(recipe: recipe)
+                            viewModel.recipes[index].isFavorite = true
+                            viewModel.addRecipeToFavorite(recipe: viewModel.recipes[index])
                         }
                     } label: {
-                        Image(systemName: recipe.isFavorite ? "star.fill" : "star")
+                        Image(systemName: viewModel.recipes[index].isFavorite ? "star.fill" : "star")
                             .foregroundStyle(.yellow)
                     }
+                    .accessibilityLabel(viewModel.recipes[index].isFavorite ? "Remove this recipe from favorites" : "Add this recipe to favorites")
                 }
             })
-            .alert("Remove the recipe from favorites", isPresented: $showingDeleteAlert) {
-                Button("Remove", role: .destructive, action: removeRecipeFromFav)
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("Are you sure?")
+            .onAppear {
+                print(viewModel.recipes[index].isFavorite)
             }
         }
-        .onDisappear {
-            dismiss()
-        }
-    }
-    
-    func removeRecipeFromFav() {
-        recipe.isFavorite = false
-        viewModel.removeRecipeFromFavorite(recipe: recipe)
-        dismiss()
     }
 }
 
 //#Preview {
-//    FavoriteRecipeDetailView()
+//    RecipeDetailsView()
 //}

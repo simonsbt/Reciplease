@@ -44,20 +44,14 @@ extension Recipe {
         )
     }
     
+    /// Return the duration of a recipe
     func getRecipeDuration() -> String? {
+        var duration: Duration
         if totalTime != 0 {
             let timeMeasure = Measurement(value: totalTime, unit: UnitDuration.minutes)
             let hours = timeMeasure.converted(to: .hours)
-            if hours.value >= 1 {
-                let minutes = timeMeasure.value.truncatingRemainder(dividingBy: 60)
-                if minutes == 0 {
-                   return String(format: "%.f%@", hours.value, "h")
-                } else if minutes < 10 {
-                    return String(format: "%.f%@0%.f", hours.value, "h", minutes)
-                }
-                return String(format: "%.f%@%.f", hours.value, "h", minutes)
-            }
-            return String(format: "%.f%@", timeMeasure.value, "min")
+            duration = Duration.seconds(hours.value * 60 * 60)
+            return duration.formatted()
         }
         return nil
     }
@@ -67,6 +61,7 @@ extension Recipe {
         (try? modelContext.fetchCount(FetchDescriptor<Recipe>())) ?? 0
     }
     
+    /// Return the ingredients
     func getIngredientFoodStringList() -> String {
         var list = ""
         for ingredient in ingredientFoodList {
