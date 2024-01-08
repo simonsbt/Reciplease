@@ -38,8 +38,9 @@ struct RecipesView: View {
         .refreshable {
             await viewModel.getRecipes()
         }
-        .alert("A problem occured while searching your recipes !", isPresented: $presentAlert) {
-            Button("OK") {
+        .alert("A problem occured while searching your recipes !", isPresented: $viewModel.hasError) {
+            Button("Cancel", role: .cancel) { }
+            Button("Retry") {
                 Task {
                     await fetchRecipes()
                 }

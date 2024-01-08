@@ -48,18 +48,8 @@ struct ApiResponse: Decodable {
 extension ApiResponse {
     
     /// Fetch recipes with a callback sending an ApiResponse or an Error
-    static private func fetchRecipes(ingredients: [String], completion: @escaping (Result<ApiResponse, Error>) -> Void) {
-        let type = "&type=public"
-        let endpoint = "https://api.edamam.com/api/recipes/v2?"
-        let appId = getAppAuth(auth: .app_id)
-        let appKey = getAppAuth(auth: .app_key)
-        
-        var ingredientsQuery = ""
-        for ingredient in ingredients {
-            ingredientsQuery += (ingredient + ",")
-        }
-        let url = endpoint + type + appId + appKey + "&q=" + ingredientsQuery
-        
+    static private func fetchRecipes(url: String, completion: @escaping (Result<ApiResponse, Error>) -> Void) {
+
         /// Alamofire call
         AF.request(url).response { response in
             switch response.result {
@@ -71,13 +61,25 @@ extension ApiResponse {
                     completion(.failure(FetchError.wrongDataFormat(error: error)))
                 }
             case .failure(_):
+                print("failure")
                 completion(.failure(FetchError.missingData))
             }
         }
     }
     
     static func getRecipes (modelContext: ModelContext, ingredients: [String], completion: @escaping (Result<ApiResponse, Error>) -> Void) {
-        fetchRecipes(ingredients: ingredients, completion: completion)
+        let type = "&type=public"
+        let endpoint = "https://api.edamam.com/api/recipes/v2?"
+        let appId = getAppAuth(auth: .app_id)
+        let appKey = getAppAuth(auth: .app_key)
+        
+        var ingredientsQuery = ""
+        for ingredient in ingredients {
+            ingredientsQuery += (ingredient + ",")
+        }
+        let url = endpoint + type + appId + appKey + "&q=" + ingredientsQuery
+        
+        fetchRecipes(url: url, completion: completion)
     }
     
     /// Return the auth keys for the API call

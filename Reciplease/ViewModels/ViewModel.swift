@@ -26,6 +26,7 @@ class ViewModel {
     
     var isRefreshing: Bool = true
     var hasBeenFetched: Bool = false
+    var hasError: Bool = false
     
     // Fetch favorite recipes from the modelContext
     func fetchFavoriteRecipes() {
@@ -59,6 +60,8 @@ class ViewModel {
                 self.isRefreshing = false
             case .failure(let error):
                 print(error)
+                self.hasError = true
+                self.isRefreshing = false
             }
         }
     }
